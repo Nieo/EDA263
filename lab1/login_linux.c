@@ -20,8 +20,9 @@
 #define LENGTH 16
 #define PW_AGE_LIMIT 5
 #define MAX_ATTEMPT_LIMIT 5
-void sighandler() {
 
+void sighandler(int signal) {
+	
 	/* add signalhandling routines here */
 	/* see 'man 2 signal' */
 }
@@ -38,7 +39,8 @@ int main(int argc, char *argv[]) {
 	char prompt[] = "password: ";
 	char *user_pass;
 
-	sighandler();
+	signal(SIGINT, sighandler);
+	signal(SIGQUIT, sighandler);
 
 	while (TRUE) {
 		/* check what important variable contains - do not remove, part of buffer overflow test */
@@ -79,12 +81,16 @@ int main(int argc, char *argv[]) {
 				passwddata->pwage++;
 				mysetpwent(user, passwddata);
 				if(passwddata->pwage >= PW_AGE_LIMIT){
-					printf("Your password is old. Please change it");
+					printf("Your password is old. Please change it\n");
 				}	
 				printf(" You're in !\n");
 				/*  check UID, see setuid(2) */
 				/*  start a shell, use execve(2) */
 
+				int status = setuid(passwddata->uid);
+				printf("setuid status%d \n", status);
+				char *argv[] = {"/bin/bash",0};
+				execv(*argv, argv);
 			}else{
 				passwddata->pwfailed++;
 				mysetpwent(user, passwddata);
