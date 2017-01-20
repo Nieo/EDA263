@@ -18,7 +18,8 @@
 #define TRUE 1
 #define FALSE 0
 #define LENGTH 16
-
+#define PW_AGE_LIMIT 5
+#define MAX_ATTEMPT_LIMIT 5
 void sighandler() {
 
 	/* add signalhandling routines here */
@@ -71,13 +72,21 @@ int main(int argc, char *argv[]) {
 			/* You have to encrypt user_pass for this to work */
 			/* Don't forget to include the salt */
 
-			if (!strcmp(user_pass, passwddata->passwd)) {
-
+			if (!strcmp(crypt(user_pass,passwddata->passwd_salt), passwddata->passwd)) {
+				printf("Number of failed attempts %d \n", passwddata->pwfailed);	
+				passwddata->pwfailed=0;
+				passwddata->pwage++;
+				mysetpwent(user, passwddata);
+				if(passwddata->pwage >= PW_AGE_LIMIT){
+					printf("Your password is old. Please change it");
+				}	
 				printf(" You're in !\n");
-
 				/*  check UID, see setuid(2) */
 				/*  start a shell, use execve(2) */
 
+			}else{
+				passwddata->pwfailed++;
+				mysetpwent(user, passwddata);
 			}
 		}
 		printf("Login Incorrect \n");
