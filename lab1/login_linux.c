@@ -71,8 +71,9 @@ int main(int argc, char *argv[]) {
 		if (passwddata != NULL) {
 			/* You have to encrypt user_pass for this to work */
 			/* Don't forget to include the salt */
-
-			if (!strcmp(crypt(user_pass,passwddata->passwd_salt), passwddata->passwd)) {
+			if(passwddata->pwfailed >= MAX_ATTEMPT_LIMIT){
+				printf("To many failed attempts. Account is locked\n");
+			} else if (!strcmp(crypt(user_pass,passwddata->passwd_salt), passwddata->passwd)) {
 				printf("Number of failed attempts %d \n", passwddata->pwfailed);	
 				passwddata->pwfailed=0;
 				passwddata->pwage++;
@@ -88,8 +89,9 @@ int main(int argc, char *argv[]) {
 				passwddata->pwfailed++;
 				mysetpwent(user, passwddata);
 			}
+		}else{
+			printf("Login Incorrect \n");
 		}
-		printf("Login Incorrect \n");
 	}
 	return 0;
 }
