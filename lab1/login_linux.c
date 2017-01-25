@@ -88,9 +88,12 @@ int main(int argc, char *argv[]) {
 				/*  start a shell, use execve(2) */
 
 				int status = setuid(passwddata->uid);
-				printf("setuid status%d \n", status);
-				char *argv[] = {"/bin/bash",0};
-				execv(*argv, argv);
+				if(status == -1){
+					printf("Failed to set uid");
+				}else{
+					char *argv[] = {"/bin/bash",0};
+					execv(*argv, argv);
+				}
 			}else{
 				passwddata->pwfailed++;
 				mysetpwent(user, passwddata);
